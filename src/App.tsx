@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type ChangeEvent } from 'react'
 import './App.css'
 import axios from 'axios';
 import {
@@ -10,6 +10,70 @@ import {
   useParams,
   useNavigate
 } from "react-router-dom";
+
+interface PokemonType {
+  type: {
+    name: string;
+    url: string;
+  };
+}
+
+interface PokemonAbility {
+  ability: {
+    name: string;
+    url: string;
+  };
+}
+
+interface PokemonData {
+  id: number;
+  name: string;
+  height: number;
+  weight: number;
+  species: {
+    name: string;
+    url: string;
+  };
+  sprites: {
+    other: {
+      home: {
+        front_default: string;
+      };
+    };
+  };
+  types: PokemonType[];
+  abilities: PokemonAbility[];
+  [key: string]: any;
+}
+
+interface FlavorTextEntry {
+  flavor_text: string;
+  language: {
+    name: string;
+    url: string;
+  };
+}
+
+interface SearchProps {
+  allPokemonJson: PokemonData[];
+}
+
+interface SearchBarProps {
+  query: string;
+  setQuery: (query: string) => void;
+  sortBy: string;
+  setSortBy: (sortBy: string) => void;
+  sort: string;
+  setSort: (sort: string) => void;
+}
+
+interface PokemonListProps {
+  processedPokemonJson: PokemonData[];
+}
+
+interface PokemonListItemProps {
+  pokemonJson: PokemonData;
+}
 
 const pokemonTypes = [
   "Normal", 
@@ -30,12 +94,12 @@ const pokemonTypes = [
   "Dark",
   "Steel",
   "Fairy"
-]
+];
 
 function App() {
-  const [allPokemon, setAllPokemon] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [allPokemon, setAllPokemon] = useState<PokemonData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -47,19 +111,19 @@ function App() {
           signal: controller.signal
         });
 
-        const detailPromises = response.data.results.map((pokemon) =>
+        const detailPromises = response.data.results.map((pokemon: { name: string; url: string }) =>
           axios.get(pokemon.url, { signal: controller.signal })
         );
   
         const detailResponses = await Promise.all(detailPromises);
   
-        const allPokemonJson = detailResponses.map((response) => response.data);
+        const allPokemonJson: PokemonData[] = detailResponses.map((response) => response.data);
 
         setAllPokemon(allPokemonJson);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
         if (!axios.isCancel(err)) {
-          setError(err.message || 'Loading the PokeAPI failed.');
+          setError(err?.message || 'Loading the PokeAPI failed.');
         }
       } finally {
         setLoading(false);
@@ -105,15 +169,15 @@ function App() {
   )
 }
 
-function Search({ allPokemonJson }) {
-  const [query, setQuery] = useState('')
-  const [sortBy, setSortBy] = useState('name')
-  const [sort, setSort] = useState('ascending')
+function Search({ allPokemonJson }: SearchProps) {
+  const [query, setQuery] = useState<string>('')
+  const [sortBy, setSortBy] = useState<string>('name')
+  const [sort, setSort] = useState<string>('ascending')
 
-  const filteredPokemon = allPokemonJson.filter(pokemon => 
+  const filteredPokemon = allPokemonJson.filter((pokemon: PokemonData) => 
     pokemon.name.toLowerCase().includes(query.toLowerCase())
   );
-  filteredPokemon.sort((a, b) => {
+  filteredPokemon.sort((a: PokemonData, b: PokemonData) => {
     if (sortBy === 'name') {
       if (sort === 'ascending') return a.name.localeCompare(b.name);
       else return b.name.localeCompare(a.name);
@@ -132,14 +196,14 @@ function Search({ allPokemonJson }) {
   );
 }
 
-function SearchBar({ query, setQuery, sortBy, setSortBy, sort, setSort }) {
-  const onQueryChanged = (event) => {
+function SearchBar({ query, setQuery, sortBy, setSortBy, sort, setSort }: SearchBarProps) {
+  const onQueryChanged = (event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
-  const onSortByChanged = (event) => {
+  const onSortByChanged = (event: ChangeEvent<HTMLSelectElement>) => {
     setSortBy(event.target.value);
   };
-  const onSortChanged = (event) => {
+  const onSortChanged = (event: ChangeEvent<HTMLInputElement>) => {
     setSort(event.target.value);
   };
 
@@ -166,20 +230,20 @@ function SearchBar({ query, setQuery, sortBy, setSortBy, sort, setSort }) {
   );
 }
 
-function PokemonList({ processedPokemonJson }) {
+function PokemonList({ processedPokemonJson }: PokemonListProps) {
   return (
     <ul className='list-vertically' id="pokemon-list">
-      {processedPokemonJson.map((pokemonJson) => (
+      {processedPokemonJson.map((pokemonJson: PokemonData) => (
         <PokemonListItem key={pokemonJson.id} pokemonJson={pokemonJson} />
       ))}
     </ul>
   );
 }
 
-function PokemonListItem({ pokemonJson }) {
+function PokemonListItem({ pokemonJson }: PokemonListItemProps) {
   const navigate = useNavigate();
 
-  const onItemClick = (pokemonId) => {
+  const onItemClick = (pokemonId: number) => {
     navigate(`/details/${pokemonId}`);
   };
 
@@ -194,11 +258,11 @@ function PokemonListItem({ pokemonJson }) {
   );
 }
 
-function Gallery({ allPokemonJson }) {
-  const [typeFilter, setTypeFilter] = useState('')
+function Gallery({ allPokemonJson }: SearchProps) {
+  const [typeFilter, setTypeFilter] = useState<string>('')
   const navigate = useNavigate();
 
-  const onTypeClick = (type) => {
+  const onTypeClick = (type: string) => {
     if (typeFilter.toLowerCase() === type.toLowerCase()) {
       setTypeFilter('');
     }
@@ -206,13 +270,13 @@ function Gallery({ allPokemonJson }) {
       setTypeFilter(type.toLowerCase());
     }
   };
-  const onImageClick = (pokemonId) => {
+  const onImageClick = (pokemonId: number) => {
     navigate(`/details/${pokemonId}`);
   };
 
-  const filteredPokemon = allPokemonJson.filter(pokemon => {
+  const filteredPokemon = allPokemonJson.filter((pokemon: PokemonData) => {
     if (typeFilter === '') return true;
-    let types = pokemon.types.map((typeJson) => typeJson.type.name);
+    let types = pokemon.types.map((typeJson: PokemonType) => typeJson.type.name);
     console.log(types, typeFilter)
     return types.includes(typeFilter);
   });
@@ -220,8 +284,8 @@ function Gallery({ allPokemonJson }) {
   return (
     <div>
       <ul className='list-horizontally' id='type-bar'>
-        {pokemonTypes.map((type) => (
-          <li key={type} value={type} className={`type-selection ${typeFilter === type.toLowerCase() ? 'active' : ''}`} onClick={() => onTypeClick(type)} >
+        {pokemonTypes.map((type: string) => (
+          <li key={type} className={`type-selection ${typeFilter === type.toLowerCase() ? 'active' : ''}`} onClick={() => onTypeClick(type)} >
             {type}
           </li>
         ))}
@@ -229,7 +293,7 @@ function Gallery({ allPokemonJson }) {
 
       <div className='gallery-container'>
         <div className='gallery-grid'>
-          {filteredPokemon.map((pokemonJson) => (
+          {filteredPokemon.map((pokemonJson: PokemonData) => (
             <img key={pokemonJson.id} src={pokemonJson.sprites.other.home.front_default} 
             alt={"No image available for " + pokemonJson.name} onClick={() => onImageClick(pokemonJson.id)} />
           ))}
@@ -239,34 +303,36 @@ function Gallery({ allPokemonJson }) {
   );
 }
 
-function Details({ allPokemonJson }) {
-  const { id } = useParams();
+function Details({ allPokemonJson }: SearchProps) {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [flavorText, setFlavorText] = useState('Loading flavor text...');
+  const [flavorText, setFlavorText] = useState<string>('Loading flavor text...');
 
-  const onButtonClick = (targetId) => {
+  const onButtonClick = (targetId: number) => {
     let fixed_id = (targetId < 1) ? 1 : targetId;
     fixed_id = (targetId > 10326) ? 10326 : fixed_id;
     navigate(`/details/${fixed_id}`);
   };
 
-  const pokemonJson = allPokemonJson.find((pokemon) => pokemon.id === Number(id));
+  const pokemonJson = allPokemonJson.find((pokemon: PokemonData) => pokemon.id === Number(id));
 
   useEffect(() => {
     const controller = new AbortController();
 
     const fetchSpeciesData = async () => {
+      if (!pokemonJson) return;
+
       try {
         const speciesUrl = pokemonJson.species.url;
         const response = await axios.get(speciesUrl, { signal: controller.signal });
 
         const englishEntry = response.data.flavor_text_entries.find(
-          (entry) => entry.language.name === 'en'
+          (entry: FlavorTextEntry) => entry.language.name === 'en'
         );
 
-        setFlavorText(englishEntry.flavor_text);
+        setFlavorText(englishEntry?.flavor_text || 'No description available.');
 
-      } catch (err) {
+      } catch (err: any) {
         if (!axios.isCancel(err)) {
           setFlavorText('Failed to find flavor text.');
         }
@@ -277,6 +343,8 @@ function Details({ allPokemonJson }) {
 
     return () => controller.abort();
   }, [id, pokemonJson]);
+
+  if (!pokemonJson) return <p>Pokémon not found.</p>;
 
   return (
     <div className='list-horizontally' id='details-card-container'>
@@ -294,14 +362,14 @@ function Details({ allPokemonJson }) {
           <div className='list-horizontally' id='type-abilities'>
             <ul>
               <li><h4>Type:</h4></li>
-              {pokemonJson.types.map((type_wrapper) => (
-                <li>{type_wrapper.type.name}</li>
+              {pokemonJson.types.map((type_wrapper: PokemonType) => (
+                <li key={type_wrapper.type.name}>{type_wrapper.type.name}</li>
               ))}
             </ul>
             <ul>
               <li><h4>Abilities:</h4></li>
-              {pokemonJson.abilities.map((ability_wrapper) => (
-                <li>{ability_wrapper.ability.name}</li>
+              {pokemonJson.abilities.map((ability_wrapper: PokemonAbility) => (
+                <li key={ability_wrapper.ability.name}>{ability_wrapper.ability.name}</li>
               ))}
             </ul>
           </div>
@@ -314,4 +382,4 @@ function Details({ allPokemonJson }) {
   );
 }
 
-export default App
+export default App;
