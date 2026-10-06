@@ -1,0 +1,141 @@
+ul {
+  padding: 0;
+}
+
+.list-vertically {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: center;
+  justify-content: center;
+}
+
+#pokemon-list {
+  border-top: solid black 2px;
+  background-color: rgb(128, 176, 128);
+}
+
+.pokemon-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  border-bottom: solid black 2px;
+  box-sizing: border-box;
+}
+.pokemon-item img {
+  width: 100px;
+  height: 100px;
+  padding: 10px;
+  font-size: 10px;
+}
+.pokemon-item h2 {
+  padding: 5px 0 0 40px;
+}
+.pokemon-item p {
+  padding: 0;
+}
+.pokemon-item:hover {
+  cursor: pointer;
+  background-color: rgb(115, 159, 115);
+}
+
+.list-horizontally {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+}
+.list-horizontally a {
+  color: #6673ff
+}
+
+#type-bar {
+  background-color: rgb(128, 176, 128);
+  gap: 14px;
+  padding: 10px 0;
+  margin: 35px 0 0;
+  border-top: solid black 2px;
+  border-bottom: solid black 2px;
+}
+
+li {
+  list-style-type: none;
+}
+
+.search-form {
+  padding: 15px 0 20px;
+  display: flex;
+  direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px
+}
+
+.search-bar-item {
+  padding: 10px;
+}
+
+#details-card-container {
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 20px;
+}
+#details-card-container img {
+  width: 300px;
+  height: 300px;
+}
+#details-card {
+  border: solid black 2px;
+  background-color: rgb(128, 176, 128);
+  padding: 20px 40px 20px 20px;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 4vw;
+  width: 100%;
+}
+#type-abilities {
+  gap: 7vw;
+  padding: 0 0 20px 0;
+}
+#type-abilities h4 {
+  margin: 0;
+  padding: 10px;
+}
+
+#standard-info {
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0 20px 0 0;
+}
+
+.gallery-container {
+  padding: 20px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.gallery-grid img {
+  width: 200px;
+  height: 200px;
+  transition: transform 0.3s ease;
+  border: solid black 2px;
+}
+
+.gallery-grid img:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.type-selection:hover {
+  color: white;
+  cursor: pointer;
+}
+.type-selection.active {
+  color: white;
+}
