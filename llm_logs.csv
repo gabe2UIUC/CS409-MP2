@@ -1,0 +1,4639 @@
+
+This error happens when Node.js or your bundler (Vite, Webpack, Next.js) cannot locate the react-router-dom package in your project's node_modules.
+
+1. Install the Package
+Run one of the following commands in your project's root directory (where package.json is located):
+
+Using npm:
+
+Bash
+npm install react-router-dom
+Using yarn:
+
+Bash
+yarn add react-router-dom
+Using pnpm:
+
+Bash
+pnpm add react-router-dom
+2. If You're Using TypeScript
+If you are using TypeScript and receive a missing type declaration error, install the corresponding types:
+
+Bash
+npm install -D @types/react-router-dom
+(Note: React Router v6+ includes built-in types, but older versions or strict TypeScript configs may require @types/react-router-dom.)
+
+3. Common Quick Fixes if the Error Persists
+Incorrect Directory: Ensure your terminal is open in the directory containing package.json, not a parent folder.
+
+Corrupted Installation: Clear the package lock and reinstall dependencies:
+
+Bash
+rm -rf node_modules package-lock.json
+npm install
+Restart the Dev Server: Kill your running development server (Ctrl + C) and restart it (npm start or npm run dev) so the bundler detects the newly installed package.
+
+Need help setting up React Router routes or fixing router import errors?
+
+Yes
+react router dom has no exported member switch
+
+This error occurs because <Switch> was replaced by <Routes> in React Router v6. If you are using React Router v6 (or v7), importing Switch results in an export error.
+
+Key Changes in React Router v6+
+Replace <Switch> with <Routes>.
+
+Replace component={Component} or render={...} with element={<Component/>}.
+
+Nest <Route> components inside <Routes>.
+
+Migration Example
+Old Code (React Router v5)
+JavaScript
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import Home from './Home';
+import About from './About';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Switch>
+    </BrowserRouter>
+  );
+}
+Updated Code (React Router v6+)
+JavaScript
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './Home';
+import About from './About';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+Summary of Changes
+React Router v5	React Router v6+
+<Switch>	<Routes>
+<Route component="{Home}">	<Route element="{<Home"/>}>
+<Route exact path="/">	<Route path="/"> (exact matching is default)
+useHistory()	useNavigate()
+Alternative: Downgrading to v5
+If you are working on a legacy project and must keep React Router v5, install the older version explicitly:
+
+Bash
+npm install react-router-dom@5.3.4
+Would you like help migrating navigate or redirect hooks (e.g., useHistory to useNavigate)?
+
+Yes
+Okay, how can I make the route path="/" just automatically redirect to something like Route path="/search"
+
+In React Router v6+, you can do this using the <Navigate/> component inside a <Route> element.
+
+Standard Redirect (<Navigate/>)
+Import Navigate from react-router-dom and pass it to the element prop of your index route:
+
+JavaScript
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import SearchPage from './SearchPage';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Redirect / to /search */}
+        <Route path="/" element={<Navigate to="/search" replace />} />
+        
+        {/* Target route */}
+        <Route path="/search" element={<SearchPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+Key Details
+to="/search": Specifies the path to redirect to.
+
+replace: Replaces the current entry in the history stack instead of adding a new one. This prevents users from getting stuck in an infinite loop when clicking the browser's "Back" button.
+
+Verification: Open your app in the browser and go to http://localhost:3000/. The browser URL should instantly change to http://localhost:3000/search without creating a duplicate back-button entry.
+
+In a <form> component how can I create a dropdown with options I have specified and a component in which you can select one of two different options (like multiple choice)
+
+To create a form with a dropdown menu and a two-option choice, use the standard HTML <select> element for the dropdown and radio <input> elements (or radio-style buttons) for the binary choice.
+
+Complete React Form Example
+JavaScript
+import { useState } from 'react';
+
+export default function MyForm() {
+  const [formData, setFormData] = useState({
+    category: '', // Dropdown value
+    planType: 'monthly' // Two-option selection (default option)
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form Submitted:', formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '300px' }}>
+      
+      {/* 1. Dropdown (<select>) */}
+      <div>
+        <label htmlFor="category">Select a Category:</label>
+        <select
+          id="category"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          <option value="" disabled>-- Choose an option --</option>
+          <option value="tech">Technology</option>
+          <option value="design">Design</option>
+          <option value="marketing">Marketing</option>
+        </select>
+      </div>
+
+      {/* 2. Two-Option Selection (Radio Buttons) */}
+      <fieldset style={{ border: '1px solid #ccc', padding: '0.75rem', borderRadius: '4px' }}>
+        <legend>Select Billing Cycle:</legend>
+        
+        <label style={{ marginRight: '1rem' }}>
+          <input
+            type="radio"
+            name="planType"
+            value="monthly"
+            checked={formData.planType === 'monthly'}
+            onChange={handleChange}
+          />
+          Monthly
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="planType"
+            value="yearly"
+            checked={formData.planType === 'yearly'}
+            onChange={handleChange}
+          />
+          Yearly
+        </label>
+      </fieldset>
+
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+Component Breakdown
+UI Element	HTML Element	Usage
+Dropdown	<select> & <option>	Ideal for 3+ options in a compact space. Set value="" disabled on the first option as a placeholder.
+Two-Option Choice	<input type="radio">	Best for choosing 1 out of 2 mutually exclusive options. Matching name attributes link the radio buttons together.
+import { useState } from 'react'
+
+import heroImg from './assets/hero.png'
+
+// import reactLogo from './assets/react.svg'
+
+// import viteLogo from './assets/vite.svg'
+
+import './App.css'
+
+// import React from "react";
+
+import {
+
+BrowserRouter as Router,
+
+Routes,
+
+Route,
+
+Link,
+
+Navigate
+
+} from "react-router-dom";
+
+
+
+const example_json = [
+
+
+
+{
+
+"id": 132,
+
+"name": "ditto",
+
+"height": 3,
+
+"weight": 40,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 133,
+
+"name": "dildo",
+
+"height": 6,
+
+"weight": 1,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 0,
+
+"name": "hinata",
+
+"height": 5,
+
+"weight": 140,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "spike",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "minus tempo",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+}
+
+
+
+]
+
+
+
+function App() {
+
+return (
+
+<>
+
+<h1>National Pokédex</h1>
+
+
+
+<Router>
+
+<div>
+
+<nav>
+
+<ul className='list-horizontally'>
+
+<li>
+
+<Link to="/search">Search</Link>
+
+</li>
+
+<li>
+
+<Link to="/gallery">Gallery</Link>
+
+</li>
+
+</ul>
+
+</nav>
+
+
+
+<Routes>
+
+<Route path="/" element={<Navigate to="/search" replace />} />
+
+<Route path="/search" element={<Search />} />
+
+<Route path="/gallery" element={<Gallery />} />
+
+</Routes>
+
+</div>
+
+</Router>
+
+</>
+
+)
+
+}
+
+
+
+function Search() {
+
+return (
+
+<>
+
+<SearchBar />
+
+<PokemonList />
+
+</>
+
+);
+
+}
+
+
+
+function SearchBar() {
+
+return (
+
+<form>
+
+<input type="text" placeholder='Search...' />
+
+
+
+<select>
+
+<option value="name">Name</option>
+
+<option value="height">Height</option>
+
+<option value="weight">Weight</option>
+
+<option value="id">ID Number</option>
+
+</select>
+
+
+
+<label>
+
+<input type="radio" name="listSort" value="ascending" />
+
+Ascending
+
+</label>
+
+<label>
+
+<input type="radio" name="listSort" value="descending" />
+
+Descending
+
+</label>
+
+</form>
+
+);
+
+}
+
+
+
+function PokemonList() {
+
+return (
+
+<ul className='list-vertically'>
+
+{example_json.map((pokemon) => (
+
+<PokemonListItem pokemonJson={pokemon} />
+
+))}
+
+</ul>
+
+);
+
+}
+
+
+
+function PokemonListItem({ pokemonJson }) {
+
+return (
+
+<li className='pokemon-item'>
+
+<img src={heroImg} />
+
+<h2>{pokemonJson.name}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</li>
+
+);
+
+}
+
+
+
+function Gallery() {
+
+return (
+
+<h2>Gallery</h2>
+
+);
+
+}
+
+
+
+export default App
+
+.list-vertically {
+
+display: flex;
+
+flex-direction: column;
+
+align-items: stretch;
+
+align-content: center;
+
+justify-content: center;
+
+}
+
+
+
+.pokemon-item {
+
+display: flex;
+
+flex-direction: row;
+
+align-items: stretch;
+
+align-content: center;
+
+height: 100%;
+
+border: solid black 2px;
+
+}
+
+.pokemon-item img {
+
+width: 100px;
+
+height: 100px;
+
+}
+
+
+
+.list-horizontally {
+
+display: flex;
+
+flex-direction: row;
+
+justify-content: center;
+
+}
+
+
+
+li {
+
+list-style-type: none;
+
+} I just want the horizontally listed items to be stretched to fit the width of the parent (which it currently is) and for each item in the pokemonlistitem to be distanced across the width of the item and vertically centered
+
+To align the contents of each .pokemon-item horizontally across the entire width and center them vertically, update your CSS for .pokemon-item:
+
+CSS Update
+CSS
+.pokemon-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;            /* Centers items vertically */
+  justify-content: space-between; /* Spreads items evenly across the full width */
+  width: 100%;                    /* Ensures the item fills parent width */
+  padding: 0 1rem;                /* Adds inner spacing so text isn't glued to borders */
+  border: solid black 2px;
+  box-sizing: border-box;         /* Prevents border/padding from causing overflow */
+}
+
+.pokemon-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;            /* Keeps image proportions clean */
+}
+What Changed & Why
+justify-content: space-between: Spreads out child elements (<img>, <h2>, <p> tags) across the total available width of the list item.
+
+align-items: center: Replaces align-items: stretch so text labels and images align cleanly along their vertical midlines.
+
+box-sizing: border-box & padding: Ensures padding and borders stay inside the element’s width without breaking horizontal alignment.
+
+Also there's a weird padding appearing to the left of the list which is making everything appear slightly uncentered. I downloaded from a Vite template
+
+That left padding comes from default browser user-agent stylesheet margins/paddings on <ul> elements, combined with default styles provided by Vite (index.css or App.css).
+
+To remove the offset and center your list perfectly, reset padding and margin on your <ul> elements and clear any default text-align: center inherited from Vite.
+
+CSS Fix
+Add the following to your App.css:
+
+CSS
+/* 1. Reset default browser list padding and margin */
+ul {
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* 2. Ensure container spans full width */
+.list-vertically {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  gap: 0.5rem; /* Adds clean spacing between items */
+}
+
+/* 3. Reset horizontal list padding */
+.list-horizontally {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0;
+  gap: 1.5rem; /* Space between nav links */
+}
+Additional Vite Template Gotcha
+If items still look slightly off-center, Vite's default template in src/index.css sets #app { text-align: center; margin: 0 auto; }. Make sure #app has full width:
+
+CSS
+#app {
+  width: 100%;
+  max-width: 1280px; /* or 100% depending on your design */
+  margin: 0 auto;
+}
+Also for the list items, I think I'd prefer if the content for each list item started at the same point. How can I do that?
+
+To make the content across all list items align in neat, consistent vertical columns regardless of name length or text size, use CSS Grid instead of space-between.
+
+CSS Fix (Switch .pokemon-item to Grid)
+Replace your .pokemon-item rules with the following:
+
+CSS
+.pokemon-item {
+  display: grid;
+  /* Fixed columns: Image (100px), Name (150px), ID (100px), Height (100px), Weight (100px) */
+  grid-template-columns: 100px 150px 100px 100px 100px;
+  align-items: center; /* Vertically centers content */
+  gap: 1rem;           /* Consistent spacing between columns */
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: solid black 2px;
+  box-sizing: border-box;
+}
+
+.pokemon-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+/* Remove default margins on headings/paragraphs so grid row height stays clean */
+.pokemon-item h2,
+.pokemon-item p {
+  margin: 0;
+}
+Alternative: Flexible Fractional Columns (fr)
+If you want the columns to expand proportionally with screen size while remaining strictly aligned vertically, use fr units:
+
+CSS
+.pokemon-item {
+  display: grid;
+  /* Image stays 100px, remaining space split proportionally across columns */
+  grid-template-columns: 100px 2fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: solid black 2px;
+  box-sizing: border-box;
+}
+Why CSS Grid Fixes This
+When using flexbox with justify-content: space-between, each list item distributes space independently depending on the length of text in that row (e.g., "ditto" vs. "hinata" or single-digit IDs vs. 3-digit IDs). CSS Grid forces every row to share the exact same column coordinates.
+
+I would like the left side of the letters to all line up. This makes the centers of each item line up
+
+To make the left edge of the text in every column line up neatly across all items, set explicit left text alignment (text-align: left) on all elements inside .pokemon-item and ensure each column has a fixed width using grid-template-columns.
+
+Here is the updated CSS:
+
+CSS
+.pokemon-item {
+  display: grid;
+  /* Fixed column widths ensure every column starts at the exact same horizontal position */
+  grid-template-columns: 100px 150px 120px 100px 100px;
+  align-items: center;  /* Vertically centers items */
+  gap: 1.5rem;          /* Uniform spacing between columns */
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: solid black 2px;
+  box-sizing: border-box;
+}
+
+.pokemon-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+/* Force left-alignment and strip default margins so text starting edges align perfectly */
+.pokemon-item h2,
+.pokemon-item p {
+  margin: 0;
+  text-align: left;
+}
+What Makes This Work
+text-align: left: Ensures every text node draws its characters starting from the far-left coordinate of its grid cell.
+
+Fixed Grid Columns (grid-template-columns): Forces every single row (PokemonListItem) to share identical column starting points across the whole list regardless of text length.
+
+margin: 0: Removes browser default heading/paragraph margins that cause unexpected alignment shifts.
+
+h2 is slightly too high up and only perfectly aligns with p when the p line breaks with the screen size
+
+This happens because <h2 and <p> elements have different default browser font sizes and line heights. When vertical alignment is calculated using align-items: center, the larger text (<h2>) aligns its baseline slightly higher than smaller text (<p>). Furthermore, when <p> wraps into two lines, its vertical center shifts downward, making it momentarily match the <h2>.
+
+To keep the text aligned across all rows, unify the line-height and align the grid items to their text baseline (align-items: baseline or align-items: center with uniform line heights).
+
+CSS Fix
+Updated CSS for .pokemon-item:
+
+CSS
+.pokemon-item {
+  display: grid;
+  grid-template-columns: 100px 150px 120px 100px 100px;
+  align-items: center; /* Vertically centers elements inside grid cells */
+  gap: 1.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: solid black 2px;
+  box-sizing: border-box;
+}
+
+.pokemon-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+/* 1. Normalize line-height & font-size behavior */
+.pokemon-item h2,
+.pokemon-item p {
+  margin: 0;
+  text-align: left;
+  line-height: 1.2;          /* Standardizes text line height */
+  white-space: nowrap;        /* Prevents line breaks from shifting alignment */
+  overflow: hidden;
+  text-overflow: ellipsis;   /* Adds '...' if text exceeds column width */
+}
+
+/* 2. Optional: Normalize font sizes if you want h2 and p text to look more uniform */
+.pokemon-item h2 {
+  font-size: 1.1rem;         /* Slightly reduces h2 height difference relative to p */
+}
+
+.pokemon-item p {
+  font-size: 0.95rem;
+}
+What Fixed It
+line-height: 1.2: Removes the extra top/bottom whitespace built into heading font renderers, bringing the visual midpoint of <h2> down to match <p>.
+
+white-space: nowrap: Prevents the <p> text from wrapping onto a second line when the screen shrinks, keeping the vertical center stable across all screen sizes.
+
+ul {
+
+padding: 0;
+
+}
+
+
+
+.list-vertically {
+
+display: flex;
+
+flex-direction: column;
+
+align-items: stretch;
+
+align-content: center;
+
+justify-content: center;
+
+border-top: solid black 2px;
+
+background-color: rgb(128, 176, 128);
+
+}
+
+
+
+.pokemon-item {
+
+display: grid;
+
+grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+
+align-items: center;
+
+text-align: left;
+
+width: 100%;
+
+border-bottom: solid black 2px;
+
+box-sizing: border-box;
+
+}
+
+.pokemon-item img {
+
+width: 100px;
+
+height: 100px;
+
+padding: 10px;
+
+}
+
+.pokemon-item h2 {
+
+padding: 5px 0 0 40px;
+
+}
+
+.pokemon-item p {
+
+padding: 0;
+
+}
+
+
+
+.list-horizontally {
+
+display: flex;
+
+flex-direction: row;
+
+justify-content: center;
+
+gap: 20px;
+
+}
+
+.list-horizontally a {
+
+color: #6673ff
+
+}
+
+
+
+#type-bar {
+
+background-color: rgb(128, 176, 128);
+
+gap: 14px;
+
+padding: 10px 0;
+
+margin: 35px 0 0;
+
+border-top: solid black 2px;
+
+border-bottom: solid black 2px;
+
+}
+
+
+
+li {
+
+list-style-type: none;
+
+}
+
+
+
+.search-form {
+
+padding: 15px 0 20px;
+
+display: flex;
+
+direction: row;
+
+align-items: center;
+
+justify-content: center;
+
+gap: 10px
+
+}
+
+
+
+.search-bar-item {
+
+padding: 10px;
+
+}
+
+
+
+#details-card-container {
+
+align-items: stretch;
+
+width: 100%;
+
+}
+
+The issue is caused by the padding on your <h2> tag:
+
+CSS
+.pokemon-item h2 {
+  padding: 5px 0 0 40px; /* <--- 5px top padding and 40px left padding */
+}
+Top Padding (5px): Adds extra space above <h2>, pushing its baseline lower than the <p> elements in the adjacent grid columns.
+
+Left Padding (40px): Pushes <h2> 40px to the right, breaking alignment with the remaining columns which have 0px left padding.
+
+Cleaned CSS Fix
+Update the .pokemon-item typography styles so all grid items align cleanly along the same horizontal line:
+
+CSS
+.pokemon-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  border-bottom: solid black 2px;
+  box-sizing: border-box;
+}
+
+.pokemon-item img {
+  width: 100px;
+  height: 100px;
+  padding: 10px;
+  object-fit: contain;
+}
+
+/* Remove unequal padding and default margins */
+.pokemon-item h2,
+.pokemon-item p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+.pokemon-item h2 {
+  font-size: 1.25rem; /* Optional: adjust size without affecting vertical alignment */
+}
+Why This Fixes It
+Removing padding: 5px 0 0 40px ensures <h2> shares the exact same starting coordinates and vertical centering (align-items: center) as every <p> tag in the grid.
+
+Setting line-height: 1.2 and resetting margin: 0 ensures font line-height differences do not offset the text baselines.
+
+You stopped this response
+import { useState } from 'react'
+
+import heroImg from './assets/hero.png'
+
+// import reactLogo from './assets/react.svg'
+
+// import viteLogo from './assets/vite.svg'
+
+import './App.css'
+
+// import React from "react";
+
+import {
+
+BrowserRouter as Router,
+
+Routes,
+
+Route,
+
+Link,
+
+Navigate
+
+} from "react-router-dom";
+
+
+
+const pokemonTypes = [
+
+"Normal",
+
+"Fire",
+
+"Water",
+
+"Grass",
+
+"Electric",
+
+"Ice",
+
+"Fighting",
+
+"Poison",
+
+"Ground",
+
+"Flying",
+
+"Psychic",
+
+"Bug",
+
+"Rock",
+
+"Ghost",
+
+"Dragon",
+
+"Dark",
+
+"Steel",
+
+"Fairy"
+
+]
+
+
+
+const example_json = [
+
+
+
+{
+
+"id": 132,
+
+"name": "ditto",
+
+"height": 3,
+
+"weight": 40,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 133,
+
+"name": "dildo",
+
+"height": 6,
+
+"weight": 1,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 0,
+
+"name": "hinata",
+
+"height": 5,
+
+"weight": 140,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "spike",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "minus tempo",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+}
+
+
+
+]
+
+
+
+function App() {
+
+return (
+
+<>
+
+<h1>National Pokédex</h1>
+
+
+
+<Router>
+
+<div>
+
+<nav>
+
+<ul className='list-horizontally'>
+
+<li>
+
+<Link to="/search">Search</Link>
+
+</li>
+
+<li>
+
+<Link to="/gallery">Gallery</Link>
+
+</li>
+
+</ul>
+
+</nav>
+
+
+
+<Routes>
+
+<Route path="/" element={<Navigate to="/search" replace />} />
+
+<Route path="/search" element={<Search />} />
+
+<Route path="/gallery" element={<Gallery />} />
+
+</Routes>
+
+</div>
+
+</Router>
+
+</>
+
+)
+
+}
+
+
+
+function Search() {
+
+return (
+
+// <>
+
+// <SearchBar />
+
+// <PokemonList />
+
+// </>
+
+<Details pokemonJson={example_json[0]} />
+
+);
+
+}
+
+
+
+function SearchBar() {
+
+return (
+
+<form className='search-form'>
+
+<input type="text" placeholder='Search...' className='search-bar-item' />
+
+
+
+<select className='search-bar-item'>
+
+<option value="name">Name</option>
+
+<option value="height">Height</option>
+
+<option value="weight">Weight</option>
+
+<option value="id">ID Number</option>
+
+</select>
+
+
+
+<label>
+
+<input type="radio" name="listSort" value="ascending" className='search-bar-item' />
+
+Ascending
+
+</label>
+
+<label>
+
+<input type="radio" name="listSort" value="descending" className='search-bar-item' />
+
+Descending
+
+</label>
+
+</form>
+
+);
+
+}
+
+
+
+function PokemonList() {
+
+return (
+
+<ul className='list-vertically'>
+
+{example_json.map((pokemon) => (
+
+<PokemonListItem pokemonJson={pokemon} />
+
+))}
+
+</ul>
+
+);
+
+}
+
+
+
+function PokemonListItem({ pokemonJson }) {
+
+return (
+
+<li className='pokemon-item'>
+
+<img src={heroImg} />
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</li>
+
+);
+
+}
+
+
+
+function Gallery() {
+
+return (
+
+<div>
+
+<ul className='list-horizontally' id='type-bar'>
+
+{pokemonTypes.map((type) => (
+
+<li>
+
+{type}
+
+</li>
+
+))}
+
+</ul>
+
+</div>
+
+);
+
+}
+
+
+
+function Details({ pokemonJson }) {
+
+return (
+
+<div className='list-horizontally' id='details-card-container'>
+
+<button>❮</button>
+
+
+
+<div>
+
+<div>
+
+<img src={heroImg} />
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</div>
+
+<div>
+
+<ul>
+
+<li>Type:</li>
+
+{pokemonJson.types.map((type_wrapper) => (
+
+<li>{type_wrapper.type.name}</li>
+
+))}
+
+<br></br>
+
+<li>Abilities:</li>
+
+{pokemonJson.abilities.map((ability_wrapper) => (
+
+<li>{ability_wrapper.ability.name}</li>
+
+))}
+
+</ul>
+
+</div>
+
+</div>
+
+
+
+<button>❯</button>
+
+</div>
+
+);
+
+}
+
+
+
+export default App
+
+No my h2 tag is fine. I was just gonna ask how to make my details card and buttons stretch to the width of the parent. it seems they are only taking up the center
+
+The container isn't stretching because .list-horizontally uses justify-content: center with no explicit width: 100% on its child containers. This causes all children to shrink-wrap to their content and bunch up in the middle.
+
+To make #details-card-container fill the screen and space the buttons out to the far edges, use Flexbox with justify-content: space-between:
+
+CSS Fix
+Add or update these rules in App.css:
+
+CSS
+#details-card-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; /* Pushes left & right buttons to the outer edges */
+  align-items: center;            /* Centers buttons vertically relative to card content */
+  width: 100%;                     /* Forces container to span full width */
+  box-sizing: border-box;
+  padding: 0 1rem;
+}
+
+/* Make the center wrapper expand to fill the space between buttons */
+#details-card-container > div {
+  flex: 1;                        /* Allows the card inner content to expand */
+  display: flex;
+  justify-content: space-around; /* Spaces out inner image/info and abilities columns */
+  align-items: center;
+  max-width: 800px;               /* Optional cap so text doesn't spread out infinitely */
+  margin: 0 auto;
+}
+Key Adjustments Made
+justify-content: space-between on container: Overrides .list-horizontally's justify-content: center to push the ❮ and ❯ buttons to the far left and right edges.
+
+width: 100%: Guarantees the card spans the full width of its parent layout.
+
+flex: 1 on the middle div: Ensures the inner content container takes up the space between the navigation buttons while allowing justify-content: space-around to space out the Pokémon artwork/stats and abilities lists cleanly.
+
+import { useState } from 'react'
+
+import heroImg from './assets/hero.png'
+
+// import reactLogo from './assets/react.svg'
+
+// import viteLogo from './assets/vite.svg'
+
+import './App.css'
+
+// import React from "react";
+
+import {
+
+BrowserRouter as Router,
+
+Routes,
+
+Route,
+
+Link,
+
+Navigate
+
+} from "react-router-dom";
+
+
+
+const pokemonTypes = [
+
+"Normal",
+
+"Fire",
+
+"Water",
+
+"Grass",
+
+"Electric",
+
+"Ice",
+
+"Fighting",
+
+"Poison",
+
+"Ground",
+
+"Flying",
+
+"Psychic",
+
+"Bug",
+
+"Rock",
+
+"Ghost",
+
+"Dragon",
+
+"Dark",
+
+"Steel",
+
+"Fairy"
+
+]
+
+
+
+const exampleFlavorText = "Capable of copying\nan enemy's genetic\ncode to instantly\ftransform itself\ninto a duplicate\nof the enemy."
+
+
+
+const example_json = [
+
+
+
+{
+
+"id": 132,
+
+"name": "ditto",
+
+"height": 3,
+
+"weight": 40,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"species": {
+
+"name": "ditto",
+
+"url": "https://pokeapi.co/api/v2/pokemon-species/132/"
+
+},
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 133,
+
+"name": "dildo",
+
+"height": 6,
+
+"weight": 1,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 0,
+
+"name": "hinata",
+
+"height": 5,
+
+"weight": 140,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "spike",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "minus tempo",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+}
+
+
+
+]
+
+
+
+function App() {
+
+return (
+
+<>
+
+<h1>National Pokédex</h1>
+
+
+
+<Router>
+
+<div>
+
+<nav>
+
+<ul className='list-horizontally'>
+
+<li>
+
+<Link to="/search">Search</Link>
+
+</li>
+
+<li>
+
+<Link to="/gallery">Gallery</Link>
+
+</li>
+
+</ul>
+
+</nav>
+
+
+
+<Routes>
+
+<Route path="/" element={<Navigate to="/search" replace />} />
+
+<Route path="/search" element={<Search />} />
+
+<Route path="/gallery" element={<Gallery />} />
+
+</Routes>
+
+</div>
+
+</Router>
+
+</>
+
+)
+
+}
+
+
+
+function Search() {
+
+return (
+
+// <>
+
+// <SearchBar />
+
+// <PokemonList />
+
+// </>
+
+<Details pokemonJson={example_json[0]} />
+
+);
+
+}
+
+
+
+function SearchBar() {
+
+return (
+
+<form className='search-form'>
+
+<input type="text" placeholder='Search...' className='search-bar-item' />
+
+
+
+<select className='search-bar-item'>
+
+<option value="name">Name</option>
+
+<option value="height">Height</option>
+
+<option value="weight">Weight</option>
+
+<option value="id">ID Number</option>
+
+</select>
+
+
+
+<label>
+
+<input type="radio" name="listSort" value="ascending" className='search-bar-item' />
+
+Ascending
+
+</label>
+
+<label>
+
+<input type="radio" name="listSort" value="descending" className='search-bar-item' />
+
+Descending
+
+</label>
+
+</form>
+
+);
+
+}
+
+
+
+function PokemonList() {
+
+return (
+
+<ul className='list-vertically' id="pokemon-list">
+
+{example_json.map((pokemon) => (
+
+<PokemonListItem pokemonJson={pokemon} />
+
+))}
+
+</ul>
+
+);
+
+}
+
+
+
+function PokemonListItem({ pokemonJson }) {
+
+return (
+
+<li className='pokemon-item'>
+
+<img src={heroImg} />
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</li>
+
+);
+
+}
+
+
+
+function Gallery() {
+
+return (
+
+<div>
+
+<ul className='list-horizontally' id='type-bar'>
+
+{pokemonTypes.map((type) => (
+
+<li>
+
+{type}
+
+</li>
+
+))}
+
+</ul>
+
+</div>
+
+);
+
+}
+
+
+
+function Details({ pokemonJson }) {
+
+return (
+
+<div className='list-horizontally' id='details-card-container'>
+
+<button>❮</button>
+
+
+
+<div>
+
+<div className='list-horizontally' id='details-card'>
+
+<img src={heroImg} />
+
+<div className='list-vertically'>
+
+<div className='list-horizontally' id='standard-info'>
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</div>
+
+<div className='list-horizontally' id='type-abilities'>
+
+<ul>
+
+<li><h4>Type:</h4></li>
+
+{pokemonJson.types.map((type_wrapper) => (
+
+<li>{type_wrapper.type.name}</li>
+
+))}
+
+</ul>
+
+<ul>
+
+<li><h4>Abilities:</h4></li>
+
+{pokemonJson.abilities.map((ability_wrapper) => (
+
+<li>{ability_wrapper.ability.name}</li>
+
+))}
+
+</ul>
+
+</div>
+
+{<p>{exampleFlavorText}</p>}
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<button>❯</button>
+
+</div>
+
+);
+
+}
+
+
+
+export default App
+
+ul {
+
+padding: 0;
+
+}
+
+
+
+.list-vertically {
+
+display: flex;
+
+flex-direction: column;
+
+align-items: stretch;
+
+align-content: center;
+
+justify-content: center;
+
+}
+
+
+
+#pokemon-list {
+
+border-top: solid black 2px;
+
+background-color: rgb(128, 176, 128);
+
+}
+
+
+
+.pokemon-item {
+
+display: grid;
+
+grid-template-columns: 120px 1fr 1fr 1fr 1fr;
+
+align-items: center;
+
+text-align: left;
+
+width: 100%;
+
+border-bottom: solid black 2px;
+
+box-sizing: border-box;
+
+}
+
+.pokemon-item img {
+
+width: 100px;
+
+height: 100px;
+
+padding: 10px;
+
+}
+
+.pokemon-item h2 {
+
+padding: 5px 0 0 40px;
+
+}
+
+.pokemon-item p {
+
+padding: 0;
+
+}
+
+
+
+.list-horizontally {
+
+display: flex;
+
+flex-direction: row;
+
+justify-content: center;
+
+gap: 20px;
+
+}
+
+.list-horizontally a {
+
+color: #6673ff
+
+}
+
+
+
+#type-bar {
+
+background-color: rgb(128, 176, 128);
+
+gap: 14px;
+
+padding: 10px 0;
+
+margin: 35px 0 0;
+
+border-top: solid black 2px;
+
+border-bottom: solid black 2px;
+
+}
+
+
+
+li {
+
+list-style-type: none;
+
+}
+
+
+
+.search-form {
+
+padding: 15px 0 20px;
+
+display: flex;
+
+direction: row;
+
+align-items: center;
+
+justify-content: center;
+
+gap: 10px
+
+}
+
+
+
+.search-bar-item {
+
+padding: 10px;
+
+}
+
+
+
+#details-card-container {
+
+align-items: stretch;
+
+justify-content: space-between;
+
+padding: 20px;
+
+}
+
+#details-card-container img {
+
+width: 300px;
+
+height: 300px;
+
+}
+
+#details-card {
+
+border: solid black 2px;
+
+background-color: rgb(128, 176, 128);
+
+padding: 20px;
+
+align-items: stretch;
+
+justify-content: space-between;
+
+gap: 5vw;
+
+}
+
+#type-abilities {
+
+gap: 7vw;
+
+padding: 0 0 20px;
+
+}
+
+#type-abilities h4 {
+
+margin: 0;
+
+padding: 10px;
+
+}
+
+
+
+#standard-info {
+
+align-items: stretch;
+
+justify-content: space-between;
+
+padding: 0 20px 0 0;
+
+} Without the flavor text in the detail card, why does it shrink to less than it's possible maximum width? I thought the stretch and space between fields would lead to it taking up the maximum width
+
+The issue comes from how Flexbox calculates element sizing when nested inside wrappers without explicit width or flex expansion rules:
+
+#details-card-container has an unstyled middle div: In your JSX, #details-card sits inside an unstyled wrapper <div> (<div><div id='details-card'>...</div></div>). A default <div> has display: block and shrinks to fit its children's inline width.
+
+Children without explicit widths shrink-wrap: Without text like exampleFlavorText (which forced a wider minimum text box) or flex-grow / explicit width rules, elements like #standard-info and #type-abilities contract to fit only their immediate content (e.g., short words like "Ditto", "3", "40").
+
+justify-content: space-between needs free horizontal space: space-between distributes extra available space. If the parent container shrink-wraps tightly around its narrow content, there is no extra space left to distribute, so items bunch together.
+
+CSS Fix
+To force #details-card and its wrapper to stretch to full width regardless of text content:
+
+CSS
+/* 1. Make the wrapper div span the available space between navigation buttons */
+#details-card-container > div {
+  flex: 1;                 /* Grow to take all available horizontal space */
+  display: flex;
+  justify-content: center; /* Keeps the card centered if max-width is set */
+  width: 100%;
+}
+
+/* 2. Force the details card itself to take full width */
+#details-card {
+  width: 100%;             /* Ensures card spans full width of its wrapper */
+  border: solid black 2px;
+  background-color: rgb(128, 176, 128);
+  padding: 20px;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 5vw;
+  box-sizing: border-box;  /* Prevents padding from causing horizontal scroll */
+}
+
+/* 3. Allow the text column inside the card to expand */
+#details-card .list-vertically {
+  flex: 1;                 /* Spreads out stats across the card */
+}
+Summary of Changes
+Element	Missing Rule	Why It Was Shrinking
+Middle div wrapper	flex: 1	Default block div shrank to fit #details-card.
+#details-card	width: 100%	Shrank to fit the sum of its image width + text width.
+Inner .list-vertically	flex: 1	Prevented #standard-info from expanding horizontally across the card.
+Looking exclusively at the state code for the pokemon list, does it work? import { useState, useEffect } from 'react'
+
+import heroImg from './assets/hero.png'
+
+// import reactLogo from './assets/react.svg'
+
+import viteLogo from './assets/vite.svg'
+
+import './App.css'
+
+// import React from "react";
+
+import axios from 'axios';
+
+import {
+
+BrowserRouter as Router,
+
+Routes,
+
+Route,
+
+Link,
+
+Navigate
+
+} from "react-router-dom";
+
+
+
+const pokemonTypes = [
+
+"Normal",
+
+"Fire",
+
+"Water",
+
+"Grass",
+
+"Electric",
+
+"Ice",
+
+"Fighting",
+
+"Poison",
+
+"Ground",
+
+"Flying",
+
+"Psychic",
+
+"Bug",
+
+"Rock",
+
+"Ghost",
+
+"Dragon",
+
+"Dark",
+
+"Steel",
+
+"Fairy"
+
+]
+
+
+
+const exampleFlavorText = "Capable of copying\nan enemy's genetic\ncode to instantly\ftransform itself\ninto a duplicate\nof the enemy."
+
+
+
+const example_json = [
+
+
+
+{
+
+"id": 132,
+
+"name": "ditto",
+
+"height": 3,
+
+"weight": 40,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"species": {
+
+"name": "ditto",
+
+"url": "https://pokeapi.co/api/v2/pokemon-species/132/"
+
+},
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 133,
+
+"name": "dildo",
+
+"height": 6,
+
+"weight": 1,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "limber",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "imposter",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+
+
+{
+
+"id": 0,
+
+"name": "hinata",
+
+"height": 5,
+
+"weight": 140,
+
+
+
+"abilities": [
+
+{
+
+"ability": {
+
+"name": "spike",
+
+"url": "https://pokeapi.co/api/v2/ability/7/"
+
+}
+
+},
+
+{
+
+"ability": {
+
+"name": "minus tempo",
+
+"url": "https://pokeapi.co/api/v2/ability/150/"
+
+}
+
+}
+
+],
+
+
+
+"sprites": {
+
+"other": {
+
+"home": {
+
+"front_default": "/assets/hero.png"
+
+}
+
+}
+
+},
+
+
+
+"types": [
+
+{
+
+"slot": 1,
+
+"type": {
+
+"name": "normal"
+
+}
+
+}
+
+]
+
+},
+
+]
+
+
+
+function App() {
+
+const [allPokemon, setAllPokemon] = useState([]);
+
+const [loading, setLoading] = useState(true);
+
+const [error, setError] = useState(null);
+
+
+
+useEffect(() => {
+
+const controller = new AbortController();
+
+
+
+const fetchData = async () => {
+
+try {
+
+setLoading(true);
+
+const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0', {
+
+signal: controller.signal
+
+});
+
+setAllPokemon(response.data);
+
+setError(null);
+
+} catch (err) {
+
+if (!axios.isCancel(err)) {
+
+setError(err.message || 'Loading the PokeAPI failed.');
+
+}
+
+} finally {
+
+setLoading(false);
+
+}
+
+};
+
+
+
+fetchData();
+
+
+
+return () => {
+
+controller.abort();
+
+};
+
+}, []);
+
+
+
+if (loading) return <p>Loading data...</p>;
+
+if (error) return <p>Error: {error}</p>;
+
+
+
+return (
+
+<>
+
+<h1>National Pokédex</h1>
+
+
+
+<Router>
+
+<div>
+
+<nav>
+
+<ul className='list-horizontally'>
+
+<li>
+
+<Link to="/search">Search</Link>
+
+</li>
+
+<li>
+
+<Link to="/gallery">Gallery</Link>
+
+</li>
+
+</ul>
+
+</nav>
+
+
+
+<Routes>
+
+<Route path="/" element={<Navigate to="/search" replace />} />
+
+<Route path="/search" element={<Search allPokemonJson={allPokemon} />} />
+
+<Route path="/gallery" element={<Gallery />} />
+
+</Routes>
+
+</div>
+
+</Router>
+
+</>
+
+)
+
+}
+
+
+
+function Search({ allPokemonJson }) {
+
+const [query, setQuery] = useState('')
+
+const [sortBy, setSortBy] = useState('name')
+
+const [sort, setSort] = useState('ascending')
+
+
+
+const filteredPokemon = allPokemonJson.filter(pokemon =>
+
+pokemon.name.toLowerCase().includes(query.toLowerCase())
+
+);
+
+filteredPokemon.sort((a, b) => {
+
+if (sortBy === 'name') {
+
+if (sort === 'ascending') return a.name.localeCompare(b.name);
+
+else return b.name.localeCompare(a.name);
+
+}
+
+else {
+
+if (sort === 'ascending') return a[sortBy] - b[sortBy];
+
+else return b[sortBy] - a[sortBy];
+
+}
+
+});
+
+
+
+return (
+
+<>
+
+<SearchBar query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sort={sort} setSort={setSort} />
+
+<PokemonList processedPokemonJson={filteredPokemon} />
+
+</>
+
+);
+
+}
+
+
+
+function SearchBar({ query, setQuery, sortBy, setSortBy, sort, setSort }) {
+
+const onQueryChanged = (event) => {
+
+setQuery(event.target.value);
+
+};
+
+const onSortByChanged = (event) => {
+
+setSortBy(event.target.value);
+
+};
+
+const onSortChanged = (event) => {
+
+setSort(event.target.value);
+
+};
+
+
+
+return (
+
+<form className='search-form'>
+
+<input type="text" placeholder='Search...' className='search-bar-item' value={query} onChange={onQueryChanged} />
+
+
+
+<select className='search-bar-item' value={sortBy} onChange={onSortByChanged}>
+
+<option value="name">Name</option>
+
+<option value="height">Height</option>
+
+<option value="weight">Weight</option>
+
+<option value="id">ID Number</option>
+
+</select>
+
+
+
+<label>
+
+<input type="radio" name="listSort" value="ascending" className='search-bar-item' checked={sort === 'ascending'} onChange={onSortChanged} />
+
+Ascending
+
+</label>
+
+<label>
+
+<input type="radio" name="listSort" value="descending" className='search-bar-item' checked={sort === 'descending'} onChange={onSortChanged} />
+
+Descending
+
+</label>
+
+</form>
+
+);
+
+}
+
+
+
+function PokemonList({ processedPokemonJson }) {
+
+return (
+
+<ul className='list-vertically' id="pokemon-list">
+
+{processedPokemonJson.map((pokemonJson) => (
+
+<PokemonListItem pokemonJson={pokemonJson} />
+
+))}
+
+</ul>
+
+);
+
+}
+
+
+
+function PokemonListItem({ pokemonJson }) {
+
+return (
+
+<li className='pokemon-item'>
+
+<img src={heroImg} />
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</li>
+
+);
+
+}
+
+
+
+function Gallery() {
+
+return (
+
+<div>
+
+<ul className='list-horizontally' id='type-bar'>
+
+{pokemonTypes.map((type) => (
+
+<li className='type-selection'>
+
+{type}
+
+</li>
+
+))}
+
+</ul>
+
+
+
+<div className='gallery-container'>
+
+<div className='gallery-grid'>
+
+{example_json.map((pokemonJson) => (
+
+<img src={viteLogo} />
+
+))}
+
+</div>
+
+</div>
+
+</div>
+
+);
+
+}
+
+
+
+function Details({ pokemonJson }) {
+
+return (
+
+<div className='list-horizontally' id='details-card-container'>
+
+<button>❮</button>
+
+
+
+<div className='list-horizontally' id='details-card'>
+
+<img src={heroImg} />
+
+<div className='list-vertically'>
+
+<div className='list-horizontally' id='standard-info'>
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height}</p>
+
+<p>Weight: {pokemonJson.weight}</p>
+
+</div>
+
+<div className='list-horizontally' id='type-abilities'>
+
+<ul>
+
+<li><h4>Type:</h4></li>
+
+{pokemonJson.types.map((type_wrapper) => (
+
+<li>{type_wrapper.type.name}</li>
+
+))}
+
+</ul>
+
+<ul>
+
+<li><h4>Abilities:</h4></li>
+
+{pokemonJson.abilities.map((ability_wrapper) => (
+
+<li>{ability_wrapper.ability.name}</li>
+
+))}
+
+</ul>
+
+</div>
+
+{<p>{exampleFlavorText}</p>}
+
+</div>
+
+</div>
+
+
+
+<button>❯</button>
+
+</div>
+
+);
+
+}
+
+
+
+export default App
+
+No, the state code will break at runtime.
+
+While your form inputs and state updates in Search and SearchBar are written correctly, there are three critical bugs in how the state flows through App and Search.
+
+Bug 1: PokeAPI Data Structure Misalignment (Runtime Crash)
+In App.js:
+
+JavaScript
+setAllPokemon(response.data);
+PokeAPI's /pokemon endpoint returns an object formatted as { count: 1302, results: [{ name: "bulbasaur", url: "..." }, ...] }.
+
+Setting response.data stores the whole object instead of the array, causing .filter() in Search to throw an error: allPokemonJson.filter is not a function.
+
+The items inside results only contain name and url. They do not contain height, weight, or id.
+
+Fix: Set setAllPokemon(response.data.results):
+
+JavaScript
+setAllPokemon(response.data.results);
+Bug 2: Sorting By Missing Properties (id, height, weight)
+In Search.js:
+
+JavaScript
+if (sort === 'ascending') return a[sortBy] - b[sortBy];
+Because PokeAPI's list endpoint only returns { name, url }, selecting Height, Weight, or ID Number from your dropdown will evaluate a['height'] as undefined. Subtracting undefined - undefined yields NaN, which breaks array sorting.
+
+Fix: To get detailed stats (id, height, weight), you either need to fetch each Pokémon's full details individually using its url, or parse the id directly out of the url string (e.g. url.split('/')[6]).
+
+Bug 3: Direct State Mutation in .sort()
+In Search.js:
+
+JavaScript
+const filteredPokemon = allPokemonJson.filter(...);
+filteredPokemon.sort(...);
+JavaScript's .sort() mutates the array in place. While .filter() returns a new array copy (preventing direct mutation of allPokemon), it is standard React best practice to slice or spread before sorting to avoid unexpected side effects:
+
+JavaScript
+const filteredPokemon = [...allPokemonJson]
+  .filter(pokemon => pokemon.name.toLowerCase().includes(query.toLowerCase()))
+  .sort((a, b) => { ... });
+Bug 4: Missing key Props in Mapped Lists
+React requires a unique key prop when rendering lists with .map(). Missing keys will cause React rendering warnings in the console:
+
+PokemonList: <PokemonListItem key="{pokemonJson.name}" pokemonJson="{pokemonJson}"/>
+
+Gallery: <li key={type} className='type-selection'>{type}</li>
+
+Refactored Search Component Fix
+Here is the corrected Search component with safe sorting:
+
+JavaScript
+function Search({ allPokemonJson }) {
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  const [sort, setSort] = useState('ascending');
+
+  // Filter and safely sort
+  const processedPokemon = [...allPokemonJson]
+    .filter(pokemon => pokemon.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) => {
+      let valA = a[sortBy] ?? a.name;
+      let valB = b[sortBy] ?? b.name;
+
+      if (typeof valA === 'string') {
+        return sort === 'ascending' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      }
+      return sort === 'ascending' ? valA - valB : valB - valA;
+    });
+
+  return (
+    <>
+      <SearchBar 
+        query={query} 
+        setQuery={setQuery} 
+        sortBy={sortBy} 
+        setSortBy={setSortBy} 
+        sort={sort} 
+        setSort={setSort} 
+      />
+      <PokemonList processedPokemonJson={processedPokemon} />
+    </>
+  );
+}
+Can you show me how to fetch every /pokemon/??? as the beginning step so I can directly access height and weight still
+
+To get full stats (height, weight, id, sprites) for every Pokémon upfront, perform a two-step fetch inside useEffect:
+
+Fetch the main list from /pokemon?limit=151 (or whatever limit you prefer).
+
+Use Promise.all() to make concurrent axios.get calls to each Pokémon's url.
+
+Refactored useEffect in App()
+Replace the useEffect block in your App component with this implementation:
+
+JavaScript
+useEffect(() => {
+  const controller = new AbortController();
+
+  const fetchDetailedPokemon = async () => {
+    try {
+      setLoading(true);
+
+      // Step 1: Fetch initial list containing names and details URLs
+      const listRes = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=151&offset=0', {
+        signal: controller.signal
+      });
+
+      // Step 2: Map over results and fetch individual details for each Pokémon in parallel
+      const detailPromises = listRes.data.results.map((pokemon) =>
+        axios.get(pokemon.url, { signal: controller.signal })
+      );
+
+      // Step 3: Wait for all detail requests to complete
+      const detailResponses = await Promise.all(detailPromises);
+
+      // Step 4: Extract raw JSON data from response objects
+      const fullPokemonData = detailResponses.map((res) => res.data);
+
+      setAllPokemon(fullPokemonData);
+      setError(null);
+    } catch (err) {
+      if (!axios.isCancel(err)) {
+        setError(err.message || 'Loading PokeAPI failed.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDetailedPokemon();
+
+  return () => {
+    controller.abort();
+  };
+}, []);
+Also Update PokemonListItem Sprites
+Now that pokemonJson contains full PokeAPI objects, update PokemonListItem to display each Pokémon's real sprite instead of heroImg:
+
+JavaScript
+function PokemonListItem({ pokemonJson }) {
+  // Use official-artwork sprite, or fallback to default sprite/heroImg
+  const spriteUrl = 
+    pokemonJson.sprites?.other?.['official-artwork']?.front_default ||
+    pokemonJson.sprites?.front_default || 
+    heroImg;
+
+  return (
+    <li className='pokemon-item'>
+      <img src={spriteUrl} alt={pokemonJson.name} />
+      <h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+      <p>ID Number: {pokemonJson.id}</p>
+      <p>Height: {pokemonJson.height}</p>
+      <p>Weight: {pokemonJson.weight}</p>
+    </li>
+  );
+}
+Key Improvements
+limit=151: Fetching full details requires one network request per Pokémon. Fetching Gen 1 (151 items) takes ~1-2 seconds. Avoid requesting limit=100000 with detailed fetches, as making over 1,000 parallel API calls will trigger browser rate limiting.
+
+Promise.all(): Executes all requests concurrently rather than sequentially in a for loop, making data loading significantly faster.
+
+Direct Access: allPokemon now contains identical structures to your example_json, making sorting by a.height or a.weight in Search work seamlessly out of the box.
+Gemini
+New chat
+Search chats
+Students
+Images
+Library
+New notebook
+Fixing TypeScript Build Errors in React
+Troubleshooting Details Panel Click Issues
+Fixing React Pokémon Type Filter
+Fix React Router Dom Module Error
+Using Axios to Fetch JSON in React
+Building Unreal Learning Kit Levels
+Fixing Flex Column Heights in SCSS
+Interactive Navbar Implementation Guide
+Responsive Contact Section Code
+Fixing Navbar Alignment with CSS
+Creating a Sticky Navbar Website
+Configuring the Active Xcode Path
+Ice Dancing Trivia Answers
+Skating Skills Test Guide
+Challenges of Physical Activity Change
+Physical Activity Quiz Answer
+Conversation with Gemini
+GitHub Actions build error > cs409-mp2@0.0.0 build
+
+> tsc -b && vite build
+
+
+
+Error: src/App.tsx(50,59): error TS7006: Parameter 'pokemon' implicitly has an 'any' type.
+
+Error: src/App.tsx(58,23): error TS2345: Argument of type 'any[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+
+Type 'any[]' is not assignable to type 'never[]'.
+
+Type 'any' is not assignable to type 'never'.
+
+Error: src/App.tsx(62,20): error TS18046: 'err' is of type 'unknown'.
+
+Error: src/App.tsx(108,19): error TS7031: Binding element 'allPokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(113,49): error TS7006: Parameter 'pokemon' implicitly has an 'any' type.
+
+Error: src/App.tsx(116,25): error TS7006: Parameter 'a' implicitly has an 'any' type.
+
+Error: src/App.tsx(116,28): error TS7006: Parameter 'b' implicitly has an 'any' type.
+
+Error: src/App.tsx(135,22): error TS7031: Binding element 'query' implicitly has an 'any' type.
+
+Error: src/App.tsx(135,29): error TS7031: Binding element 'setQuery' implicitly has an 'any' type.
+
+Error: src/App.tsx(135,39): error TS7031: Binding element 'sortBy' implicitly has an 'any' type.
+
+Error: src/App.tsx(135,47): error TS7031: Binding element 'setSortBy' implicitly has an 'any' type.
+
+Error: src/App.tsx(135,58): error TS7031: Binding element 'sort' implicitly has an 'any' type.
+
+Error: src/App.tsx(135,64): error TS7031: Binding element 'setSort' implicitly has an 'any' type.
+
+Error: src/App.tsx(136,27): error TS7006: Parameter 'event' implicitly has an 'any' type.
+
+Error: src/App.tsx(139,28): error TS7006: Parameter 'event' implicitly has an 'any' type.
+
+Error: src/App.tsx(142,26): error TS7006: Parameter 'event' implicitly has an 'any' type.
+
+Error: src/App.tsx(169,24): error TS7031: Binding element 'processedPokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(172,34): error TS7006: Parameter 'pokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(179,28): error TS7031: Binding element 'pokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(182,24): error TS7006: Parameter 'pokemonId' implicitly has an 'any' type.
+
+Error: src/App.tsx(197,20): error TS7031: Binding element 'allPokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(201,24): error TS7006: Parameter 'type' implicitly has an 'any' type.
+
+Error: src/App.tsx(209,25): error TS7006: Parameter 'pokemonId' implicitly has an 'any' type.
+
+Error: src/App.tsx(213,49): error TS7006: Parameter 'pokemon' implicitly has an 'any' type.
+
+Error: src/App.tsx(215,36): error TS7006: Parameter 'typeJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(232,33): error TS7006: Parameter 'pokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(242,20): error TS7031: Binding element 'allPokemonJson' implicitly has an 'any' type.
+
+Error: src/App.tsx(247,26): error TS7006: Parameter 'targetId' implicitly has an 'any' type.
+
+Error: src/App.tsx(253,44): error TS7006: Parameter 'pokemon' implicitly has an 'any' type.
+
+Error: src/App.tsx(264,12): error TS7006: Parameter 'entry' implicitly has an 'any' type.
+
+Error: src/App.tsx(297,39): error TS7006: Parameter 'type_wrapper' implicitly has an 'any' type.
+
+Error: src/App.tsx(303,43): error TS7006: Parameter 'ability_wrapper' implicitly has an 'any' type.
+
+Error: Process completed with exit code 2 With code import { useState, useEffect } from 'react'
+
+import './App.css'
+
+import axios from 'axios';
+
+import {
+
+BrowserRouter as Router,
+
+Routes,
+
+Route,
+
+Link,
+
+Navigate,
+
+useParams,
+
+useNavigate
+
+} from "react-router-dom";
+
+
+
+const pokemonTypes = [
+
+"Normal",
+
+"Fire",
+
+"Water",
+
+"Grass",
+
+"Electric",
+
+"Ice",
+
+"Fighting",
+
+"Poison",
+
+"Ground",
+
+"Flying",
+
+"Psychic",
+
+"Bug",
+
+"Rock",
+
+"Ghost",
+
+"Dragon",
+
+"Dark",
+
+"Steel",
+
+"Fairy"
+
+]
+
+
+
+function App() {
+
+const [allPokemon, setAllPokemon] = useState([]);
+
+const [loading, setLoading] = useState(true);
+
+const [error, setError] = useState(null);
+
+
+
+useEffect(() => {
+
+const controller = new AbortController();
+
+
+
+const fetchData = async () => {
+
+try {
+
+setLoading(true);
+
+const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0', {
+
+signal: controller.signal
+
+});
+
+
+
+const detailPromises = response.data.results.map((pokemon) =>
+
+axios.get(pokemon.url, { signal: controller.signal })
+
+);
+
+
+const detailResponses = await Promise.all(detailPromises);
+
+
+const allPokemonJson = detailResponses.map((response) => response.data);
+
+
+
+setAllPokemon(allPokemonJson);
+
+setError(null);
+
+} catch (err) {
+
+if (!axios.isCancel(err)) {
+
+setError(err.message || 'Loading the PokeAPI failed.');
+
+}
+
+} finally {
+
+setLoading(false);
+
+}
+
+};
+
+
+
+fetchData();
+
+
+
+return () => {
+
+controller.abort();
+
+};
+
+}, []);
+
+
+
+if (loading) return <p>Loading data...</p>;
+
+if (error) return <p>Error: {error}</p>;
+
+
+
+return (
+
+<>
+
+<h1>National Pokédex</h1>
+
+
+
+<Router basename={import.meta.env.BASE_URL}>
+
+<div>
+
+<nav>
+
+<ul className='list-horizontally'>
+
+<li>
+
+<Link to="/search">Search</Link>
+
+</li>
+
+<li>
+
+<Link to="/gallery">Gallery</Link>
+
+</li>
+
+</ul>
+
+</nav>
+
+
+
+<Routes>
+
+<Route path="/" element={<Navigate to="/search" replace />} />
+
+<Route path="/search" element={<Search allPokemonJson={allPokemon} />} />
+
+<Route path="/gallery" element={<Gallery allPokemonJson={allPokemon} />} />
+
+<Route path="/details/:id" element={<Details allPokemonJson={allPokemon} />} />
+
+</Routes>
+
+</div>
+
+</Router>
+
+</>
+
+)
+
+}
+
+
+
+function Search({ allPokemonJson }) {
+
+const [query, setQuery] = useState('')
+
+const [sortBy, setSortBy] = useState('name')
+
+const [sort, setSort] = useState('ascending')
+
+
+
+const filteredPokemon = allPokemonJson.filter(pokemon =>
+
+pokemon.name.toLowerCase().includes(query.toLowerCase())
+
+);
+
+filteredPokemon.sort((a, b) => {
+
+if (sortBy === 'name') {
+
+if (sort === 'ascending') return a.name.localeCompare(b.name);
+
+else return b.name.localeCompare(a.name);
+
+}
+
+else {
+
+if (sort === 'ascending') return a[sortBy] - b[sortBy];
+
+else return b[sortBy] - a[sortBy];
+
+}
+
+});
+
+
+
+return (
+
+<>
+
+<SearchBar query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sort={sort} setSort={setSort} />
+
+<PokemonList processedPokemonJson={filteredPokemon} />
+
+</>
+
+);
+
+}
+
+
+
+function SearchBar({ query, setQuery, sortBy, setSortBy, sort, setSort }) {
+
+const onQueryChanged = (event) => {
+
+setQuery(event.target.value);
+
+};
+
+const onSortByChanged = (event) => {
+
+setSortBy(event.target.value);
+
+};
+
+const onSortChanged = (event) => {
+
+setSort(event.target.value);
+
+};
+
+
+
+return (
+
+<form className='search-form'>
+
+<input type="text" placeholder='Search...' className='search-bar-item' value={query} onChange={onQueryChanged} />
+
+
+
+<select className='search-bar-item' value={sortBy} onChange={onSortByChanged}>
+
+<option value="name">Name</option>
+
+<option value="height">Height</option>
+
+<option value="weight">Weight</option>
+
+<option value="id">ID Number</option>
+
+</select>
+
+
+
+<label>
+
+<input type="radio" name="listSort" value="ascending" className='search-bar-item' checked={sort === 'ascending'} onChange={onSortChanged} />
+
+Ascending
+
+</label>
+
+<label>
+
+<input type="radio" name="listSort" value="descending" className='search-bar-item' checked={sort === 'descending'} onChange={onSortChanged} />
+
+Descending
+
+</label>
+
+</form>
+
+);
+
+}
+
+
+
+function PokemonList({ processedPokemonJson }) {
+
+return (
+
+<ul className='list-vertically' id="pokemon-list">
+
+{processedPokemonJson.map((pokemonJson) => (
+
+<PokemonListItem key={pokemonJson.id} pokemonJson={pokemonJson} />
+
+))}
+
+</ul>
+
+);
+
+}
+
+
+
+function PokemonListItem({ pokemonJson }) {
+
+const navigate = useNavigate();
+
+
+
+const onItemClick = (pokemonId) => {
+
+navigate(`/details/${pokemonId}`);
+
+};
+
+
+
+return (
+
+<li className='pokemon-item' onClick={() => onItemClick(pokemonJson.id)}>
+
+<img src={pokemonJson.sprites.other.home.front_default} alt={"No image available for " + pokemonJson.name}/>
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height / 10} m</p>
+
+<p>Weight: {pokemonJson.weight / 10} kg</p>
+
+</li>
+
+);
+
+}
+
+
+
+function Gallery({ allPokemonJson }) {
+
+const [typeFilter, setTypeFilter] = useState('')
+
+const navigate = useNavigate();
+
+
+
+const onTypeClick = (type) => {
+
+if (typeFilter.toLowerCase() === type.toLowerCase()) {
+
+setTypeFilter('');
+
+}
+
+else {
+
+setTypeFilter(type.toLowerCase());
+
+}
+
+};
+
+const onImageClick = (pokemonId) => {
+
+navigate(`/details/${pokemonId}`);
+
+};
+
+
+
+const filteredPokemon = allPokemonJson.filter(pokemon => {
+
+if (typeFilter === '') return true;
+
+let types = pokemon.types.map((typeJson) => typeJson.type.name);
+
+console.log(types, typeFilter)
+
+return types.includes(typeFilter);
+
+});
+
+
+
+return (
+
+<div>
+
+<ul className='list-horizontally' id='type-bar'>
+
+{pokemonTypes.map((type) => (
+
+<li key={type} value={type} className={`type-selection ${typeFilter === type.toLowerCase() ? 'active' : ''}`} onClick={() => onTypeClick(type)} >
+
+{type}
+
+</li>
+
+))}
+
+</ul>
+
+
+
+<div className='gallery-container'>
+
+<div className='gallery-grid'>
+
+{filteredPokemon.map((pokemonJson) => (
+
+<img key={pokemonJson.id} src={pokemonJson.sprites.other.home.front_default}
+
+alt={"No image available for " + pokemonJson.name} onClick={() => onImageClick(pokemonJson.id)} />
+
+))}
+
+</div>
+
+</div>
+
+</div>
+
+);
+
+}
+
+
+
+function Details({ allPokemonJson }) {
+
+const { id } = useParams();
+
+const navigate = useNavigate();
+
+const [flavorText, setFlavorText] = useState('Loading flavor text...');
+
+
+
+const onButtonClick = (targetId) => {
+
+let fixed_id = (targetId < 1) ? 1 : targetId;
+
+fixed_id = (targetId > 10326) ? 10326 : fixed_id;
+
+navigate(`/details/${fixed_id}`);
+
+};
+
+
+
+const pokemonJson = allPokemonJson.find((pokemon) => pokemon.id === Number(id));
+
+
+
+useEffect(() => {
+
+const controller = new AbortController();
+
+
+
+const fetchSpeciesData = async () => {
+
+try {
+
+const speciesUrl = pokemonJson.species.url;
+
+const response = await axios.get(speciesUrl, { signal: controller.signal });
+
+
+
+const englishEntry = response.data.flavor_text_entries.find(
+
+(entry) => entry.language.name === 'en'
+
+);
+
+
+
+setFlavorText(englishEntry.flavor_text);
+
+
+
+} catch (err) {
+
+if (!axios.isCancel(err)) {
+
+setFlavorText('Failed to find flavor text.');
+
+}
+
+}
+
+};
+
+
+
+fetchSpeciesData();
+
+
+
+return () => controller.abort();
+
+}, [id, pokemonJson]);
+
+
+
+return (
+
+<div className='list-horizontally' id='details-card-container'>
+
+<button onClick={() => onButtonClick(Number(id) - 1)}>❮</button>
+
+
+
+<div className='list-horizontally' id='details-card'>
+
+<img src={pokemonJson.sprites.other.home.front_default} alt={"No image available for " + pokemonJson.name}/>
+
+<div className='list-vertically'>
+
+<div className='list-horizontally' id='standard-info'>
+
+<h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+
+<p>ID Number: {pokemonJson.id}</p>
+
+<p>Height: {pokemonJson.height / 10} m</p>
+
+<p>Weight: {pokemonJson.weight / 10} kg</p>
+
+</div>
+
+<div className='list-horizontally' id='type-abilities'>
+
+<ul>
+
+<li><h4>Type:</h4></li>
+
+{pokemonJson.types.map((type_wrapper) => (
+
+<li>{type_wrapper.type.name}</li>
+
+))}
+
+</ul>
+
+<ul>
+
+<li><h4>Abilities:</h4></li>
+
+{pokemonJson.abilities.map((ability_wrapper) => (
+
+<li>{ability_wrapper.ability.name}</li>
+
+))}
+
+</ul>
+
+</div>
+
+{<p>{flavorText}</p>}
+
+</div>
+
+</div>
+
+
+
+<button onClick={() => onButtonClick(Number(id) + 1)}>❯</button>
+
+</div>
+
+);
+
+}
+
+
+
+export default App
+
+The errors are occurring because TypeScript's strict type checking is enabled in your tsconfig.json (or Vite template), which enforces strict typing rules:
+
+TS7006 / TS7031: Function parameters and destructured props do not have type annotations (implicit any).
+
+TS2345: useState([]) infers the array type as never[]. Passing any[] to setAllPokemon fails.
+
+TS18046: The catch (err) block treats err as unknown in modern TypeScript.
+
+Here is the fully fixed src/App.tsx file with interfaces defined and typing annotations applied across components, handlers, and state:
+
+TypeScript
+import { useState, useEffect, ChangeEvent } from 'react'
+import './App.css'
+import axios from 'axios';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+  useParams,
+  useNavigate
+} from "react-router-dom";
+
+// Interfaces for Pokémon API response structures
+interface PokemonType {
+  type: {
+    name: string;
+    url: string;
+  };
+}
+
+interface PokemonAbility {
+  ability: {
+    name: string;
+    url: string;
+  };
+}
+
+interface PokemonData {
+  id: number;
+  name: string;
+  height: number;
+  weight: number;
+  species: {
+    name: string;
+    url: string;
+  };
+  sprites: {
+    other: {
+      home: {
+        front_default: string;
+      };
+    };
+  };
+  types: PokemonType[];
+  abilities: PokemonAbility[];
+  [key: string]: any; // Allows indexing like pokemon[sortBy]
+}
+
+interface FlavorTextEntry {
+  flavor_text: string;
+  language: {
+    name: string;
+    url: string;
+  };
+}
+
+interface SearchProps {
+  allPokemonJson: PokemonData[];
+}
+
+interface SearchBarProps {
+  query: string;
+  setQuery: (query: string) => void;
+  sortBy: string;
+  setSortBy: (sortBy: string) => void;
+  sort: string;
+  setSort: (sort: string) => void;
+}
+
+interface PokemonListProps {
+  processedPokemonJson: PokemonData[];
+}
+
+interface PokemonListItemProps {
+  pokemonJson: PokemonData;
+}
+
+const pokemonTypes = [
+  "Normal", 
+  "Fire",
+  "Water",
+  "Grass",
+  "Electric",
+  "Ice",
+  "Fighting",
+  "Poison",
+  "Ground",
+  "Flying",
+  "Psychic",
+  "Bug",
+  "Rock",
+  "Ghost",
+  "Dragon",
+  "Dark",
+  "Steel",
+  "Fairy"
+];
+
+function App() {
+  const [allPokemon, setAllPokemon] = useState<PokemonData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0', {
+          signal: controller.signal
+        });
+
+        const detailPromises = response.data.results.map((pokemon: { name: string; url: string }) =>
+          axios.get(pokemon.url, { signal: controller.signal })
+        );
+  
+        const detailResponses = await Promise.all(detailPromises);
+  
+        const allPokemonJson: PokemonData[] = detailResponses.map((response) => response.data);
+
+        setAllPokemon(allPokemonJson);
+        setError(null);
+      } catch (err: any) {
+        if (!axios.isCancel(err)) {
+          setError(err?.message || 'Loading the PokeAPI failed.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  if (loading) return <p>Loading data...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <>
+      <h1>National Pokédex</h1>
+
+      <Router basename={import.meta.env.BASE_URL}>
+        <div>
+          <nav>
+            <ul className='list-horizontally'>
+              <li>
+                <Link to="/search">Search</Link>
+              </li>
+              <li>
+                <Link to="/gallery">Gallery</Link>
+              </li>
+            </ul>
+          </nav>
+
+          <Routes>
+            <Route path="/" element={<Navigate to="/search" replace />} />
+            <Route path="/search" element={<Search allPokemonJson={allPokemon} />} />
+            <Route path="/gallery" element={<Gallery allPokemonJson={allPokemon} />} />
+            <Route path="/details/:id" element={<Details allPokemonJson={allPokemon} />} />
+          </Routes>
+        </div>
+      </Router>
+    </>
+  )
+}
+
+function Search({ allPokemonJson }: SearchProps) {
+  const [query, setQuery] = useState<string>('')
+  const [sortBy, setSortBy] = useState<string>('name')
+  const [sort, setSort] = useState<string>('ascending')
+
+  const filteredPokemon = allPokemonJson.filter((pokemon: PokemonData) => 
+    pokemon.name.toLowerCase().includes(query.toLowerCase())
+  );
+  filteredPokemon.sort((a: PokemonData, b: PokemonData) => {
+    if (sortBy === 'name') {
+      if (sort === 'ascending') return a.name.localeCompare(b.name);
+      else return b.name.localeCompare(a.name);
+    }
+    else {
+      if (sort === 'ascending') return a[sortBy] - b[sortBy];
+      else return b[sortBy] - a[sortBy];
+    }
+  });
+
+  return (
+    <>
+      <SearchBar query={query} setQuery={setQuery} sortBy={sortBy} setSortBy={setSortBy} sort={sort} setSort={setSort} />
+      <PokemonList processedPokemonJson={filteredPokemon} />
+    </>
+  );
+}
+
+function SearchBar({ query, setQuery, sortBy, setSortBy, sort, setSort }: SearchBarProps) {
+  const onQueryChanged = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
+  const onSortByChanged = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSortBy(event.target.value);
+  };
+  const onSortChanged = (event: ChangeEvent<HTMLInputElement>) => {
+    setSort(event.target.value);
+  };
+
+  return (
+    <form className='search-form'>
+      <input type="text" placeholder='Search...' className='search-bar-item' value={query} onChange={onQueryChanged} />
+
+      <select className='search-bar-item' value={sortBy} onChange={onSortByChanged}>
+        <option value="name">Name</option>
+        <option value="height">Height</option>
+        <option value="weight">Weight</option>
+        <option value="id">ID Number</option>
+      </select>
+
+      <label>
+        <input type="radio" name="listSort" value="ascending" className='search-bar-item' checked={sort === 'ascending'} onChange={onSortChanged} />
+        Ascending 
+      </label>
+      <label>
+        <input type="radio" name="listSort" value="descending" className='search-bar-item' checked={sort === 'descending'} onChange={onSortChanged} />
+        Descending  
+      </label>
+    </form>
+  );
+}
+
+function PokemonList({ processedPokemonJson }: PokemonListProps) {
+  return (
+    <ul className='list-vertically' id="pokemon-list">
+      {processedPokemonJson.map((pokemonJson: PokemonData) => (
+        <PokemonListItem key={pokemonJson.id} pokemonJson={pokemonJson} />
+      ))}
+    </ul>
+  );
+}
+
+function PokemonListItem({ pokemonJson }: PokemonListItemProps) {
+  const navigate = useNavigate();
+
+  const onItemClick = (pokemonId: number) => {
+    navigate(`/details/${pokemonId}`);
+  };
+
+  return (
+    <li className='pokemon-item' onClick={() => onItemClick(pokemonJson.id)}>
+      <img src={pokemonJson.sprites.other.home.front_default} alt={"No image available for " + pokemonJson.name}/>
+      <h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+      <p>ID Number: {pokemonJson.id}</p>
+      <p>Height: {pokemonJson.height / 10} m</p>
+      <p>Weight: {pokemonJson.weight / 10} kg</p>
+    </li>
+  );
+}
+
+function Gallery({ allPokemonJson }: SearchProps) {
+  const [typeFilter, setTypeFilter] = useState<string>('')
+  const navigate = useNavigate();
+
+  const onTypeClick = (type: string) => {
+    if (typeFilter.toLowerCase() === type.toLowerCase()) {
+      setTypeFilter('');
+    }
+    else {
+      setTypeFilter(type.toLowerCase());
+    }
+  };
+  const onImageClick = (pokemonId: number) => {
+    navigate(`/details/${pokemonId}`);
+  };
+
+  const filteredPokemon = allPokemonJson.filter((pokemon: PokemonData) => {
+    if (typeFilter === '') return true;
+    let types = pokemon.types.map((typeJson: PokemonType) => typeJson.type.name);
+    console.log(types, typeFilter)
+    return types.includes(typeFilter);
+  });
+
+  return (
+    <div>
+      <ul className='list-horizontally' id='type-bar'>
+        {pokemonTypes.map((type: string) => (
+          <li key={type} className={`type-selection ${typeFilter === type.toLowerCase() ? 'active' : ''}`} onClick={() => onTypeClick(type)} >
+            {type}
+          </li>
+        ))}
+      </ul>
+
+      <div className='gallery-container'>
+        <div className='gallery-grid'>
+          {filteredPokemon.map((pokemonJson: PokemonData) => (
+            <img key={pokemonJson.id} src={pokemonJson.sprites.other.home.front_default} 
+            alt={"No image available for " + pokemonJson.name} onClick={() => onImageClick(pokemonJson.id)} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Details({ allPokemonJson }: SearchProps) {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [flavorText, setFlavorText] = useState<string>('Loading flavor text...');
+
+  const onButtonClick = (targetId: number) => {
+    let fixed_id = (targetId < 1) ? 1 : targetId;
+    fixed_id = (targetId > 10326) ? 10326 : fixed_id;
+    navigate(`/details/${fixed_id}`);
+  };
+
+  const pokemonJson = allPokemonJson.find((pokemon: PokemonData) => pokemon.id === Number(id));
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchSpeciesData = async () => {
+      if (!pokemonJson) return;
+
+      try {
+        const speciesUrl = pokemonJson.species.url;
+        const response = await axios.get(speciesUrl, { signal: controller.signal });
+
+        const englishEntry = response.data.flavor_text_entries.find(
+          (entry: FlavorTextEntry) => entry.language.name === 'en'
+        );
+
+        setFlavorText(englishEntry?.flavor_text || 'No description available.');
+
+      } catch (err: any) {
+        if (!axios.isCancel(err)) {
+          setFlavorText('Failed to find flavor text.');
+        }
+      }
+    };
+
+    fetchSpeciesData();
+
+    return () => controller.abort();
+  }, [id, pokemonJson]);
+
+  if (!pokemonJson) return <p>Pokémon not found.</p>;
+
+  return (
+    <div className='list-horizontally' id='details-card-container'>
+      <button onClick={() => onButtonClick(Number(id) - 1)}>❮</button>
+
+      <div className='list-horizontally' id='details-card'>
+        <img src={pokemonJson.sprites.other.home.front_default} alt={"No image available for " + pokemonJson.name}/>
+        <div className='list-vertically'>
+          <div className='list-horizontally' id='standard-info'>
+            <h2>{pokemonJson.name.charAt(0).toUpperCase() + pokemonJson.name.slice(1)}</h2>
+            <p>ID Number: {pokemonJson.id}</p>
+            <p>Height: {pokemonJson.height / 10} m</p>
+            <p>Weight: {pokemonJson.weight / 10} kg</p>
+          </div>
+          <div className='list-horizontally' id='type-abilities'>
+            <ul>
+              <li><h4>Type:</h4></li>
+              {pokemonJson.types.map((type_wrapper: PokemonType) => (
+                <li key={type_wrapper.type.name}>{type_wrapper.type.name}</li>
+              ))}
+            </ul>
+            <ul>
+              <li><h4>Abilities:</h4></li>
+              {pokemonJson.abilities.map((ability_wrapper: PokemonAbility) => (
+                <li key={ability_wrapper.ability.name}>{ability_wrapper.ability.name}</li>
+              ))}
+            </ul>
+          </div>
+          {<p>{flavorText}</p>}
+        </div>
+      </div>
+
+      <button onClick={() => onButtonClick(Number(id) + 1)}>❯</button>
+    </div>
+  );
+}
+
+export default App;
+Main Changes Applied
+Added PokemonData, PokemonType, PokemonAbility, and FlavorTextEntry interfaces to describe Pokémon object structures.
+
+Updated useState([]) to useState<PokemonData[]>([]) to resolve SetStateAction<never[]>.
+
+Typed all prop destructurings and callback parameters (e.g., (pokemon: PokemonData), (event: ChangeEvent<HTMLInputElement>)).
+
+Handled catch (err: any) to satisfy TS18046.
+
+Fixed React key warnings in types and abilities loops in Details.
+
+
+
+
+
+Your Google Apps @ Illinois chats aren’t used to improve our models. Gemini is AI and can make mistakes. Your privacy & GeminiOpens in a new window
+
